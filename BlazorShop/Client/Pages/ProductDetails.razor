@@ -1,0 +1,41 @@
+﻿@page "/product/{id:int}"
+@inject IProductService ProductService
+@inject ILocalStorageService LocalStorage
+@inject IToastService ToastService
+
+<div class="media">
+    <div class="media-img-big-wrapper mr-2">
+        <img class="media-img-big" src="@product.Img" alt="@product.Title" />
+    </div>
+    <div class="media-body">
+        <h2 class="mb-0">@product.Title</h2>
+        <p>@product.Info</p>
+        <h4 class="price">
+            @product.Price &#8381;
+        </h4>
+        <button class="btn btn-primary" @onclick="AddToCart"><i class="oi oi-cart">&nbsp;&nbsp;&nbsp;Add To Cart</i></button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Product product = new Product();
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetProduct(Id);
+    }
+
+    private async Task AddToCart()
+    {
+        var cart = await LocalStorage.GetItemAsync<List<Product>>("cart");
+        if (cart == null)
+        {
+            cart = new List<Product>();
+        }
+        cart.Add(product);
+        await LocalStorage.SetItemAsync("cart", cart);
+        ToastService.ShowSuccess(product.Title, "Added to cart:");
+    }
+}
