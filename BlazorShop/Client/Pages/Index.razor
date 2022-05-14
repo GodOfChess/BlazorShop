@@ -1,3 +1,14 @@
 ﻿@page "/"
+@inject ISyncLocalStorageService LocalStorage
+
+<AuthorizeView>
+    <NotAuthorized>
+        <h3>Welcome to Blazor Shop!</h3>
+    </NotAuthorized>
+    <Authorized>
+        <h3>Welcome to Blazor Shop, @LocalStorage.GetItemAsString("user")!</h3>
+    </Authorized>
+</AuthorizeView>
+
 
 <ProductList />

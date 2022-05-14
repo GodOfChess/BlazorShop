@@ -1,0 +1,62 @@
+﻿@page "/login"
+@inject IUserService UserService
+@inject NavigationManager NavManager
+@inject IToastService ToastService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Login</h3>
+
+<EditForm Model="user">
+    <div class="form-group">
+        <label for="username">UserName</label>
+        <InputText class="form-control" required id="username" @bind-Value="user.UserName" />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText class="form-control" required type="password" id="password" @bind-Value="user.Pass" />
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" @onclick="LogUser">Login</button>
+        <button class="btn btn-info" @onclick="RegUser">Register</button>
+    </div>
+</EditForm>
+
+@code {
+    User user = new User();
+
+
+    private async Task LogUser()
+    {
+        var response = await UserService.LoginUser(user);
+        if (response == false)
+        {
+            ToastService.ShowError($"Incorrect login or Password");
+        }
+        else
+        {
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            NavManager.NavigateTo("");
+        }
+    }
+
+    public async Task RegUser()
+    {
+
+        if (user.UserName == String.Empty || user.Pass == String.Empty || user.UserName == null || user.Pass == null)
+        {
+            ToastService.ShowError($"Login or password is empty");
+        }
+        else
+        {
+            var response = await UserService.RegisterUser(user);
+            if (response == false)
+            {
+                ToastService.ShowError($"The user {user.UserName} is already exist");
+            }
+            else
+            {
+                ToastService.ShowSuccess($"The user {user.UserName} is registered");
+            }
+        }
+    }
+}

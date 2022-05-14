@@ -31,5 +31,18 @@ namespace BlazorShop.Server.Controllers
         {
             return Ok(await _productservice.GetProduct(id));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProductToDB(Product product)
+        {
+            return Ok(await _productservice.AddProduct(product));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProductFromDB(int id)
+        {
+            await _productservice.DeleteProduct(id);
+            return Ok();
+        }
     }
 }

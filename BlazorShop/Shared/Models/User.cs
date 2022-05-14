@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace BlazorShop.Shared.Models
 {
-    public class Product
+    public class User
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Info { get; set; }
-        public string Img { get; set; }
-        public string Price { get; set; }
+        public string UserName { get; set; }
+        public string Pass { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

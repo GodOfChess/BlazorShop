@@ -1,5 +1,15 @@
 ﻿@inject IProductService ProductService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavManager
 
+<AuthorizeView>
+    <Authorized>
+        @if (_admin)
+        {
+            <button class="btn btn-primary" @onclick='(() => NavManager.NavigateTo("/addproduct"))'>Add Product</button>
+        }
+    </Authorized>
+</AuthorizeView>
 <ul class="list-unstyled">
     @foreach (var product in ProductService.Products)
     {
@@ -17,6 +27,14 @@
                 <h5 class="price">
                     @product.Price &#8381;
                 </h5>
+                <AuthorizeView>
+                    <Authorized>
+                        @if (_admin)
+                        {
+                            <button class="btn btn-danger btn-sm" @onclick="(() => Delete(product.Id))">Delete</button>
+                        }
+                    </Authorized>
+                </AuthorizeView>
             </div>
         </li>
     }
@@ -24,8 +42,17 @@
 
 @code {
 
+    private bool _admin = false;
+
     protected override async Task OnInitializedAsync()
     {
+        await ProductService.LoadProducts();
+        _admin = await LocalStorage.GetItemAsync<bool>("admin");
+    }
+
+    private async Task Delete(int id)
+    {
+        await ProductService.DeleteProduct(id);
         await ProductService.LoadProducts();
     }
 }

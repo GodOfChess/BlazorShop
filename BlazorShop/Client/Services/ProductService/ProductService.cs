@@ -28,5 +28,15 @@ namespace BlazorShop.Client.Services.ProductService
         {
             return await _httpClient.GetFromJsonAsync<Product>($"api/Product/{id}");
         }
+
+        public async Task AddProduct(Product product)
+        {
+            await _httpClient.PostAsJsonAsync("api/Product", product);
+        }
+
+        public async Task DeleteProduct(int id)
+        {
+            await _httpClient.DeleteAsync($"api/Product/{id}");
+        }
     }
 }

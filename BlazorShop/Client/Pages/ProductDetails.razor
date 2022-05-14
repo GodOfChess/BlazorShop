@@ -1,5 +1,6 @@
 ﻿@page "/product/{id:int}"
 @inject IProductService ProductService
+@inject ICartService CartService
 @inject ILocalStorageService LocalStorage
 @inject IToastService ToastService
 
@@ -29,13 +30,6 @@
 
     private async Task AddToCart()
     {
-        var cart = await LocalStorage.GetItemAsync<List<Product>>("cart");
-        if (cart == null)
-        {
-            cart = new List<Product>();
-        }
-        cart.Add(product);
-        await LocalStorage.SetItemAsync("cart", cart);
-        ToastService.ShowSuccess(product.Title, "Added to cart:");
+        await CartService.AddToCart(product);
     }
 }

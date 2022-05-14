@@ -10,5 +10,7 @@ namespace BlazorShop.Server.Services.ProductService
     {
         public Task<List<Product>> GetAllProducts();
         public Task<Product> GetProduct(int id);
+        public Task<bool> AddProduct(Product product);
+        public Task DeleteProduct(int id);
     }
 }

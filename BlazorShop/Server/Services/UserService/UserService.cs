@@ -8,77 +8,37 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorShop.Server.Services.ProductService
+namespace BlazorShop.Server.Services.UserService
 {
-    public class ProductService : IProductService
+    public class UserService : IUserService
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
 
-        public ProductService(IConfiguration configuration)
+        public UserService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("ProductsConnection");
+            _connectionString = configuration.GetConnectionString("ProductsConnection");
         }
 
-        public async Task<List<Product>> GetAllProducts()
+        public async Task<bool> RegisterUser(User user)
         {
-            IEnumerable<Product> products;
             using (var conn = new SqlConnection(_connectionString))
             {
+                IEnumerable<User> users;
                 if (conn.State == ConnectionState.Closed)
                     conn.Open();
                 try
                 {
-                    products = await conn.QueryAsync<Product>("select * from dbo.products");
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
-            }
-            return products.ToList();
-        }
-
-        public async Task<Product> GetProduct(int id)
-        {
-            Product product = new Product();
-
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-                try
-                {
-                    product = await conn.QueryFirstOrDefaultAsync<Product>($"select * from products where id = {id}");
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
-            }
-            return product;
-        }
-
-        public async Task<bool> AddProduct(Product product)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-                try
-                {
-                    await conn.ExecuteAsync($"insert into Products(Title, Info, Img, Price) values('{product.Title}','{product.Info}','{product.Img}','{product.Price}')");
+                    users = await conn.QueryAsync<User>("select * from users");
+                    foreach (var currentUser in users)
+                    {
+                        if (currentUser.UserName == user.UserName)
+                        {
+                            return false;
+                        }
+                    }
+                    await conn.ExecuteAsync($"insert into Users(UserName, Pass) values('{user.UserName}','{user.Pass}')");
                 }
                 catch (Exception)
                 {
@@ -91,17 +51,25 @@ namespace BlazorShop.Server.Services.ProductService
                 }
                 return true;
             }
-        } 
-
-        public async Task DeleteProduct(int id)
+        }
+        public async Task<bool> LoginUser(User user)
         {
+            IEnumerable<User> users;
             using (var conn = new SqlConnection(_connectionString))
             {
                 if (conn.State == ConnectionState.Closed)
                     conn.Open();
                 try
                 {
-                    await conn.ExecuteAsync($"delete from products where id = {id}");
+                    users = await conn.QueryAsync<User>("select * from dbo.users");
+                    foreach (var currentUser in users)
+                    {
+                        if (currentUser.UserName == user.UserName && currentUser.Pass == user.Pass)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
                 catch (Exception)
                 {
@@ -112,6 +80,60 @@ namespace BlazorShop.Server.Services.ProductService
                     if (conn.State == ConnectionState.Open)
                         conn.Close();
                 }
+            }
+        }
+
+        public async Task<bool> CheckAdmin(User user)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    user = await conn.QueryFirstOrDefaultAsync<User>($"select IsAdmin from users where UserName='{user.UserName}'");
+                    if (user.IsAdmin)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+        }
+
+        public async Task<List<User>> GetAllUsers()
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                IEnumerable<User> users;
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    users = await conn.QueryAsync<User>("select * from users");
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+                return users.ToList();
             }
         }
     }
