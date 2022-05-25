@@ -1,5 +1,6 @@
 ﻿@inject ILocalStorageService LocalStorage
 @inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">BlazorShop</a>
@@ -48,5 +49,6 @@
         await LocalStorage.RemoveItemAsync("user");
         await LocalStorage.RemoveItemAsync("admin");
         await AuthStateProvider.GetAuthenticationStateAsync();
+        NavManager.NavigateTo("");
     }
 }

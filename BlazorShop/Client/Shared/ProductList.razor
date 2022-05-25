@@ -2,14 +2,10 @@
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
 
-<AuthorizeView>
-    <Authorized>
-        @if (_admin)
-        {
-            <button class="btn btn-primary" @onclick='(() => NavManager.NavigateTo("/addproduct"))'>Add Product</button>
-        }
-    </Authorized>
-</AuthorizeView>
+@if (_admin)
+{
+    <button class="btn btn-primary" @onclick='(() => NavManager.NavigateTo("/addproduct"))'>Add Product</button>
+}
 <ul class="list-unstyled">
     @foreach (var product in ProductService.Products)
     {

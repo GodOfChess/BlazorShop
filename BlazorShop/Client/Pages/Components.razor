@@ -1,0 +1,64 @@
+﻿@page "/components"
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavManager
+@inject IComponentService ComponentService
+
+@if (_admin)
+{
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary mb-2" @onclick='(() => NavManager.NavigateTo("/addcomponent"))'>Add Component</button>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-light text-center">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Maker</th>
+                    <th>ItemPrice</th>
+                    <th>Amount</th>
+                    <th>TotalPrice</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                <GenericList ListOfItems="ComponentService.Components">
+                    <ItemTemplate Context="component">
+                        <tr>
+                            <td>@component.Id</td>
+                            <td>@component.Name</td>
+                            <td>@component.Maker</td>
+                            <td>@component.ItemPrice</td>
+                            <td>@component.Amount</td>
+                            <td>@(int.Parse(component.Amount) * int.Parse(component.ItemPrice))</td>
+                            <td><button class="btn btn-danger btn-sm" @onclick="() => Delete(component.Id)">Delete</button></td>
+                        </tr>
+                    </ItemTemplate>
+                </GenericList>
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <h3>You have not access to this url</h3>
+}
+
+@code {
+    private bool _admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _admin = await LocalStorage.GetItemAsync<bool>("admin");
+        await ComponentService.LoadComponents();
+    }
+
+    private async Task Delete(int id)
+    {
+        await ComponentService.DeleteComponent(id);
+        await ComponentService.LoadComponents();
+    }
+}
+

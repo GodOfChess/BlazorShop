@@ -2,6 +2,8 @@ using Blazored.LocalStorage;
 using Blazored.Toast;
 using BlazorShop.Client.Services;
 using BlazorShop.Client.Services.CartService;
+using BlazorShop.Client.Services.ComponentService;
+using BlazorShop.Client.Services.OrderService;
 using BlazorShop.Client.Services.ProductService;
 using BlazorShop.Client.Services.UserService;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -28,6 +30,8 @@ namespace BlazorShop.Client
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IComponentService, ComponentService>();
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredToast();
             builder.Services.AddAuthorizationCore();

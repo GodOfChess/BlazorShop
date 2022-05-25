@@ -1,5 +1,9 @@
 ﻿@page "/cart"
 @inject ICartService CartService
+@inject IToastService ToastService
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthProvider
+@inject IOrderService OrderService
 
 <h3>Shopping Cart</h3>
 
@@ -24,13 +28,31 @@ else
             </div>
         </div>
     }
-    <div class="total-item-price">
+    <div class="row total-item-price">
         Total (@cartItems.Count): @cartItems.Sum(item => item.Price) &#8381;
     </div>
+    <AuthorizeView>
+        <NotAuthorized>
+            <div class="row mt-2">
+                <div class="col">
+                    <label for="username">Your Name</label>
+                    <input class="form-control" required id="username" @bind-value="order.UserName" />
+                    <button class="btn btn-success mt-2" @onclick="(() => PostOrder(order))">Order</button>
+                </div>
+            </div>
+        </NotAuthorized>
+        <Authorized>
+            <div class="row mt-2 ml-1">
+                <button class="btn btn-success" @onclick="(() => PostOrder(order))">Order</button>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 }
 
 @code {
+
     List<CartItem> cartItems;
+    Order order = new Order();
 
     protected override async Task OnInitializedAsync()
     {
@@ -41,5 +63,24 @@ else
     {
         await CartService.DeleteItem(item);
         cartItems = await CartService.GetCartItems();
+    }
+
+    private async void PostOrder(Order order)
+    {
+        if (await LocalStorage.GetItemAsync<string>("user") != null)
+        {
+            order.UserName = await LocalStorage.GetItemAsync<string>("user");
+        }
+
+        if (order.UserName == null || order.UserName == String.Empty)
+        {
+            ToastService.ShowError("Please, write your username");
+        }
+        else
+        {
+            ToastService.ShowSuccess("Success");
+            order.Price = cartItems.Sum(item => item.Price).ToString();
+            await OrderService.PostOrder(order);
+        }
     }
 }

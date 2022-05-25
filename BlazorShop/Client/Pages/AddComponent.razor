@@ -1,0 +1,47 @@
+﻿@page "/addcomponent"
+@inject NavigationManager NavManager
+@inject ILocalStorageService LocalStorage
+@inject IComponentService ComponentService
+
+@if (_admin)
+{
+    <h3>Add Component</h3>
+
+    <EditForm Model="component">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText class="form-control" required id="name" @bind-Value="component.Name" />
+        </div>
+        <div class="form-group">
+            <label for="maker">Maker</label>
+            <InputText class="form-control" required id="maker" @bind-Value="component.Maker" />
+        </div>
+        <div class="form-group">
+            <label for="itemprice">ItemPrice</label>
+            <InputText class="form-control" required id="itemprice" @bind-Value="component.ItemPrice" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" @onclick="Add">Add Component</button>
+        </div>
+    </EditForm>
+}
+else
+{
+    <h3>You have not access to this url</h3>
+}
+
+@code{
+    Component component = new Component();
+    private bool _admin;
+
+    private async Task Add()
+    {
+        await ComponentService.AddComponent(component);
+        NavManager.NavigateTo("/components");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _admin = await LocalStorage.GetItemAsync<bool>("admin");
+    }
+}

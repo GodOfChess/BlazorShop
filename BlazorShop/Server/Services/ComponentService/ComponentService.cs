@@ -8,29 +8,29 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorShop.Server.Services.ProductService
+namespace BlazorShop.Server.Services.ComponentService
 {
-    public class ProductService : IProductService
+    public class ComponentService : IComponentService
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
 
-        public ProductService(IConfiguration configuration)
+        public ComponentService(IConfiguration configuration)
         {
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString("ProductsConnection");
         }
 
-        public async Task<List<Product>> GetAllProducts()
+        public async Task<List<Component>> GetComponents()
         {
-            IEnumerable<Product> products;
+            IEnumerable<Component> components;
             using (var conn = new SqlConnection(_connectionString))
             {
                 if (conn.State == ConnectionState.Closed)
                     conn.Open();
                 try
                 {
-                    products = await conn.QueryAsync<Product>("select * from products");
+                    components = await conn.QueryAsync<Component>("select * from components");
                 }
                 catch (Exception)
                 {
@@ -42,20 +42,18 @@ namespace BlazorShop.Server.Services.ProductService
                         conn.Close();
                 }
             }
-            return products.ToList();
+            return components.ToList();
         }
 
-        public async Task<Product> GetProduct(int id)
+        public async Task PostComponent(Component component)
         {
-            Product product = new Product();
-
             using (var conn = new SqlConnection(_connectionString))
             {
                 if (conn.State == ConnectionState.Closed)
                     conn.Open();
                 try
                 {
-                    product = await conn.QueryFirstOrDefaultAsync<Product>($"select * from products where id = {id}");
+                    await conn.ExecuteAsync($"insert into Components(Name, Maker, ItemPrice) values('{component.Name}','{component.Maker}','{component.ItemPrice}')");
                 }
                 catch (Exception)
                 {
@@ -67,10 +65,9 @@ namespace BlazorShop.Server.Services.ProductService
                         conn.Close();
                 }
             }
-            return product;
         }
 
-        public async Task<bool> AddProduct(Product product)
+        public async Task DeleteComponent(int id)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -78,30 +75,7 @@ namespace BlazorShop.Server.Services.ProductService
                     conn.Open();
                 try
                 {
-                    await conn.ExecuteAsync($"insert into Products(Title, Info, Img, Price) values('{product.Title}','{product.Info}','{product.Img}','{product.Price}')");
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
-                return true;
-            }
-        } 
-
-        public async Task DeleteProduct(int id)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-                try
-                {
-                    await conn.ExecuteAsync($"delete from products where id = {id}");
+                    await conn.ExecuteAsync($"delete from components where id = {id}");
                 }
                 catch (Exception)
                 {

@@ -1,3 +1,5 @@
+using BlazorShop.Server.Services.ComponentService;
+using BlazorShop.Server.Services.OrderService;
 using BlazorShop.Server.Services.ProductService;
 using BlazorShop.Server.Services.UserService;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +31,8 @@ namespace BlazorShop.Server
             services.AddRazorPages();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IComponentService, ComponentService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

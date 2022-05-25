@@ -1,0 +1,22 @@
+﻿@typeparam TItem
+
+@if (ListOfItems == null)
+{
+    <p>Loading...</p>
+}
+else if (ListOfItems.Count == 0)
+{
+    <p>No items...</p>
+}
+else
+{
+    @foreach (var item in ListOfItems)
+    {
+        @ItemTemplate(item);
+    }
+}
+
+@code {
+    [Parameter] public RenderFragment<TItem> ItemTemplate { get; set; }
+    [Parameter] public List<TItem> ListOfItems { get; set; }
+}

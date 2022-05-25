@@ -1,6 +1,6 @@
-﻿@page "/users"
-@inject IUserService UserService
+﻿@page "/orders"
 @inject ILocalStorageService LocalStorage
+@inject IOrderService OrderService
 
 @if (_admin)
 {
@@ -10,18 +10,16 @@
                 <tr>
                     <th>Id</th>
                     <th>UserName</th>
-                    <th>Password</th>
-                    <th>IsAdmin</th>
+                    <th>Price</th>
                 </tr>
             </thead>
             <tbody class="text-center">
-                <GenericList ListOfItems="users">
-                    <ItemTemplate Context="user">
+                <GenericList ListOfItems="orders">
+                    <ItemTemplate Context="order">
                         <tr>
-                            <td>@user.Id</td>
-                            <td>@user.UserName</td>
-                            <td>@user.Pass</td>
-                            <td>@user.IsAdmin</td>
+                            <td>@order.Id</td>
+                            <td>@order.UserName</td>
+                            <td>@order.Price</td>
                         </tr>
                     </ItemTemplate>
                 </GenericList>
@@ -34,14 +32,13 @@ else
     <h3>You have not access to this url</h3>
 }
 
-
 @code {
-    public List<User> users { get; set; } = new List<User>();
+    public List<Order> orders { get; set; } = new List<Order>();
     private bool _admin;
 
     protected override async Task OnInitializedAsync()
     {
         _admin = await LocalStorage.GetItemAsync<bool>("admin");
-        users = await UserService.GetAllUsers();
+        orders = await OrderService.LoadOrders();
     }
 }
