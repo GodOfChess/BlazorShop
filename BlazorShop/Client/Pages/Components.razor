@@ -2,6 +2,7 @@
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
 @inject IComponentService ComponentService
+@inject ILinkService LinkService
 
 @if (_admin)
 {
@@ -31,14 +32,61 @@
                             <td>@component.Name</td>
                             <td>@component.Maker</td>
                             <td>@component.ItemPrice</td>
-                            <td>@component.Amount</td>
-                            <td>@(int.Parse(component.Amount) * int.Parse(component.ItemPrice))</td>
+                            <td>
+                                @links.Count(item => item.ComponentName == component.Name)
+                            </td>
+                            <td>@(links.Count(item => item.ComponentName == component.Name) * int.Parse(component.ItemPrice))</td>
                             <td><button class="btn btn-danger btn-sm" @onclick="() => Delete(component.Id)">Delete</button></td>
                         </tr>
                     </ItemTemplate>
                 </GenericList>
             </tbody>
         </table>
+    </div>
+
+    <h5>Maker Information</h5>
+    <select class="btn btn-toolbar border dropdown-toggle text-left mt-2" @onchange="ChangeMaker">
+        <option selected value="">Choose maker</option>
+        @foreach (var item in ComponentService.Components)
+        {
+            <option value="@item.Maker">@item.Maker</option>
+        }
+    </select>
+    <div class="table-responsive mt-2">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-light text-center">
+                <tr>
+                    <th>Maker</th>
+                    <th>Component</th>
+                    <th>ItemPrice</th>
+                    <th>Amount</th>
+                    <th>TotalPrice</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                <GenericList ListOfItems="ComponentService.Components">
+                    <ItemTemplate Context="component">
+                        @if (component.Maker == maker)
+                        {
+                            <tr>
+                                <td>@component.Maker</td>
+                                <td>@component.Name</td>
+                                <td>@component.ItemPrice</td>
+                                <td>
+                                    @links.Count(item => item.ComponentName == component.Name)
+                                </td>
+                                <td>@(links.Count(item => item.ComponentName == component.Name) * int.Parse(component.ItemPrice))</td>
+                            </tr>
+                        }
+                    </ItemTemplate>
+                </GenericList>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="text-success font-weight-bolder">Final price: @sum &#8381;</p>
+        </div>
     </div>
 }
 else
@@ -48,17 +96,36 @@ else
 
 @code {
     private bool _admin;
+    private int sum;
+    private List<Link> links = new List<Link>();
+    private string maker;
 
     protected override async Task OnInitializedAsync()
     {
         _admin = await LocalStorage.GetItemAsync<bool>("admin");
         await ComponentService.LoadComponents();
+        links = await LinkService.LoadLinks();
     }
 
     private async Task Delete(int id)
     {
         await ComponentService.DeleteComponent(id);
         await ComponentService.LoadComponents();
+    }
+
+    private void ChangeMaker(ChangeEventArgs currentItem)
+    {
+        maker = currentItem.Value.ToString();
+        sum = 0;
+        CheckSum();
+    }
+
+    private void CheckSum()
+    {
+        foreach (var component in ComponentService.Components)
+        {
+            sum += links.Count(item => item.ComponentName == component.Name && component.Maker == maker) * int.Parse(component.ItemPrice);
+        }
     }
 }
 

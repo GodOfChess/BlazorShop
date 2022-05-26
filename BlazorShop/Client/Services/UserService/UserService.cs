@@ -35,8 +35,11 @@ namespace BlazorShop.Client.Services.UserService
             {
                 await CheckAdmin(user);
                 var cart = await _localStorage.GetItemAsync<List<Product>>("cart");
-                cart.Clear();
-                await _localStorage.SetItemAsync("cart", cart);
+                if (cart != null)
+                {
+                    cart.Clear();
+                    await _localStorage.SetItemAsync("cart", cart);
+                }
                 await _localStorage.SetItemAsStringAsync("user", user.UserName);
                 OnChange.Invoke();
                 return true;

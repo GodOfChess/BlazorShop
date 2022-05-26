@@ -36,14 +36,14 @@ else
             <div class="row mt-2">
                 <div class="col">
                     <label for="username">Your Name</label>
-                    <input class="form-control" required id="username" @bind-value="order.UserName" />
-                    <button class="btn btn-success mt-2" @onclick="(() => PostOrder(order))">Order</button>
+                    <input class="form-text" required id="username" @bind-value="order.UserName" />
+                    <button class="btn btn-success mt-2" @onclick="PostOrder">Order</button>
                 </div>
             </div>
         </NotAuthorized>
         <Authorized>
             <div class="row mt-2 ml-1">
-                <button class="btn btn-success" @onclick="(() => PostOrder(order))">Order</button>
+                <button class="btn btn-success" @onclick="PostOrder">Order</button>
             </div>
         </Authorized>
     </AuthorizeView>
@@ -65,7 +65,7 @@ else
         cartItems = await CartService.GetCartItems();
     }
 
-    private async void PostOrder(Order order)
+    private async void PostOrder()
     {
         if (await LocalStorage.GetItemAsync<string>("user") != null)
         {

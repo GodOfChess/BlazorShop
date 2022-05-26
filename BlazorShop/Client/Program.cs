@@ -3,6 +3,7 @@ using Blazored.Toast;
 using BlazorShop.Client.Services;
 using BlazorShop.Client.Services.CartService;
 using BlazorShop.Client.Services.ComponentService;
+using BlazorShop.Client.Services.LinkService;
 using BlazorShop.Client.Services.OrderService;
 using BlazorShop.Client.Services.ProductService;
 using BlazorShop.Client.Services.UserService;
@@ -32,6 +33,7 @@ namespace BlazorShop.Client
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IComponentService, ComponentService>();
+            builder.Services.AddScoped<ILinkService, LinkService>();
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredToast();
             builder.Services.AddAuthorizationCore();

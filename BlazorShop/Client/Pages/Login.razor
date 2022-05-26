@@ -24,7 +24,6 @@
 @code {
     User user = new User();
 
-
     private async Task LogUser()
     {
         var response = await UserService.LoginUser(user);
@@ -41,7 +40,6 @@
 
     public async Task RegUser()
     {
-
         if (user.UserName == String.Empty || user.Pass == String.Empty || user.UserName == null || user.Pass == null)
         {
             ToastService.ShowError($"Login or password is empty");

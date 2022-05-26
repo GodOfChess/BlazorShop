@@ -3,6 +3,8 @@
 @inject ICartService CartService
 @inject ILocalStorageService LocalStorage
 @inject IToastService ToastService
+@inject ILinkService LinkService
+@inject IComponentService ComponentService
 
 <div class="media">
     <div class="media-img-big-wrapper mr-2">
@@ -15,21 +17,89 @@
             @product.Price &#8381;
         </h4>
         <button class="btn btn-primary" @onclick="AddToCart"><i class="oi oi-cart">&nbsp;&nbsp;&nbsp;Add To Cart</i></button>
+        @if (_admin)
+        {
+            <div class="row mt-3">
+                <div class="col-4">
+                    <ul class="list-group">
+                        @if (links.Count != 0)
+                        {
+                            @foreach (var item in links)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    @item.ComponentName
+                                    <button class="btn btn-sm" @onclick="() => Delete(item.Id)">&#10006;</button>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <label for="components">Components</label>
+                    <select class="btn btn-toolbar border dropdown-toggle text-left" @onchange="ChangeValue">
+                        <option selected value="">Choose component</option>
+                        @foreach (var item in ComponentService.Components)
+                        {
+                            <option value="@item.Name">@item.Name</option>
+                        }
+                    </select>
+                    <button class="btn btn-success mt-3" @onclick="() => Post()">Add Component</button>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter] public int Id { get; set; }
+    private bool _admin;
+    private string value;
 
     private Product product = new Product();
+    private Link link = new Link();
+
+    private List<Link> links = new List<Link>();
+    private List<Component> components = new List<Component>();
 
     protected override async Task OnInitializedAsync()
     {
         product = await ProductService.GetProduct(Id);
+        links = await LinkService.LoadLinksByProduct(product.Title);
+        await ComponentService.LoadComponents();
+        link.ProductName = product.Title;
+        _admin = await LocalStorage.GetItemAsync<bool>("admin");
     }
 
     private async Task AddToCart()
     {
         await CartService.AddToCart(product);
+    }
+
+    private async Task Delete(int id)
+    {
+        await LinkService.DeleteLink(id);
+        links = await LinkService.LoadLinksByProduct(product.Title);
+    }
+
+    private async Task Post()
+    {
+        if (String.IsNullOrEmpty(value) || value == "Choose component")
+        {
+            ToastService.ShowError("Please, choose component");
+        }
+        else
+        {
+            ToastService.ShowSuccess("Success");
+            link.ComponentName = value;
+            await LinkService.PostLink(link);
+            links = await LinkService.LoadLinksByProduct(product.Title);
+        }
+    }
+
+    private void ChangeValue(ChangeEventArgs currentItem)
+    {
+        value = currentItem.Value.ToString();
     }
 }
